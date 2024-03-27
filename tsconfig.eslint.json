@@ -1,0 +1,10 @@
+{
+	"extends": "./tsconfig.json",
+	"include": [
+		"./node_modules/**/*.d.ts",
+		"./src/**/*.ts",
+		"./.eslintrc.cjs",
+		"./.prettierrc.cjs",
+		"./vitest.config.ts",
+	]
+}

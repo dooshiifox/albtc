@@ -1,0 +1,43 @@
+{
+  "name": "albtc",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "A Little Bit Too Common - A collection of functions I use a lot.",
+  "author": "kit <edoosh.yt@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/dooshiifox/albtc",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dooshiifox/albtc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dooshiifox/albtc/issues"
+  },
+  "keywords": [
+    "utils",
+    "common"
+  ],
+  "sideEffects": false,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest --config ./vitest.config.ts",
+    "lint": "prettier --check . && eslint .",
+    "format": "prettier --write ."
+  },
+  "engines": {
+    "node": "^18.0.0 || >=20.0.0"
+  },
+  "devDependencies": {
+    "@types/eslint": "8.56.0",
+    "@types/node": "^18.0.0 || >=20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.5",
+    "prettier-plugin-organize-imports": "^3.2.4",
+    "typescript": "^5.4.3",
+    "vitest": "^1.4.0"
+  }
+}
