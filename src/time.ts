@@ -1,4 +1,3 @@
-/** @type  */
 type TimeFormat<Abbr extends string, Next extends string> = `${
 	| `${number}${Abbr}`
 	| `${number}${Abbr} `
@@ -66,7 +65,14 @@ export function ms(time: TimeParseable): number {
 		Number(minutes ?? 0) * minute +
 		Number(seconds ?? 0) * second +
 		Number(milliseconds ?? 0);
-	return isNaN(millis) ? 0 : millis;
+
+	/* v8 ignore next 4 */
+	if (isNaN(millis)) {
+		// If this is reached theres a bug in the regex.
+		throw new Error("Invalid time string. This is a bug in albtc.");
+	}
+
+	return millis;
 }
 
 /** Formats a duration in milliseconds for `x:xx` or `x:xx:xx` format,
@@ -91,7 +97,19 @@ export function formatDuration(duration: TimeParseable) {
 	}
 }
 
-/** Formats a date relative to the current time. */
+/** Formats a date relative to the current time.
+ *  Moderately opinionated about the format, but should be good for most cases.
+ *
+ *  Examples:
+ * - `formatRelativeTime(new Date())` -> `Just now`
+ * - `formatRelativeTime(new Date(Date.now() - ms("1d")))` -> `Yesterday`
+ * - `formatRelativeTime(new Date(Date.now() - ms("1m 14s")))` -> `A minute ago`
+ * - `formatRelativeTime(new Date(Date.now() - ms("6h 3m")))` -> `6 hours ago`
+ * - `formatRelativeTime(new Date(Date.now() + ms("2s")))` -> `In a moment`
+ * - `formatRelativeTime(new Date(Date.now() + ms("12d")))` -> `In 12 days`
+ * - `formatRelativeTime(new Date(Date.now() + ms("45d")))` -> `6 Aug`
+ * - `formatRelativeTime(new Date(Date.now() + ms("130d")))` -> `30 Oct 2024`
+ */
 export function formatRelativeTime(
 	date: Date,
 	config?: {
@@ -102,81 +120,79 @@ export function formatRelativeTime(
 	const now = config?.now ?? new Date();
 	const lowercase = config?.lowercase ?? false;
 
-	const within = (time: number) => date.getTime() > now.getTime() - time;
-	const until = (time: number) => date.getTime() < now.getTime() + time;
+	const within = (time: Time) => date.getTime() > now.getTime() - ms(time);
+	const until = (time: Time) => date.getTime() < now.getTime() + ms(time);
+	const lower = (str: string) => (lowercase ? str.toLowerCase() : str);
 
 	// Date was in the past
-	if (now.getTime() > date.getTime()) {
-		if (within(ms("5s"))) {
-			if (lowercase) return "just now";
-			return "Just now";
-		}
+	if (now.getTime() >= date.getTime()) {
+		if (within("5s")) return lower("Just now");
 
-		if (within(ms("1m"))) {
+		if (within("1m")) {
 			const secs = Math.floor((now.getTime() - date.getTime()) / 1000);
 			return `${secs} seconds ago`;
 		}
 
-		if (within(ms("1h"))) {
+		if (within("1h")) {
 			const mins = Math.floor((now.getTime() - date.getTime()) / ms("1m"));
-			if (mins === 1) return "A minute ago";
+			if (mins === 1) return lower("A minute ago");
 			return `${mins} minutes ago`;
 		}
 
-		if (within(ms("1d"))) {
+		if (within("1d")) {
 			const hours = Math.floor((now.getTime() - date.getTime()) / ms("1h"));
-			if (hours === 1) return "An hour ago";
+			if (hours === 1) return lower("An hour ago");
 			return `${hours} hours ago`;
 		}
 
-		if (within(ms("14d"))) {
+		if (within("14d")) {
 			const days = Math.floor((now.getTime() - date.getTime()) / ms("1d"));
-			if (days === 1) return "Yesterday";
+			if (days === 1) return lower("Yesterday");
 			return `${days} days ago`;
 		}
 	} else {
 		// Date is in the future.
-		if (until(ms("5s"))) {
-			if (lowercase) return "in a moment";
-			return "In a moment";
-		}
+		if (until("5s")) return lower("In a moment");
 
-		const in_ = lowercase ? "in" : "In";
-
-		if (until(ms("1m"))) {
+		if (until("1m")) {
 			const secs = Math.floor((date.getTime() - now.getTime()) / 1000);
-			return `${in_} ${secs} seconds`;
+			return lower(`In ${secs} seconds`);
 		}
 
-		if (until(ms("1h"))) {
+		if (until("1h")) {
 			const mins = Math.floor((date.getTime() - now.getTime()) / ms("1m"));
-			if (mins === 1) return `${in_} a minute`;
-			return `${in_} ${mins} minutes`;
+			if (mins === 1) return lower("In a minute");
+			return lower(`In ${mins} minutes`);
 		}
 
-		if (until(ms("1d"))) {
+		if (until("1d")) {
 			const hours = Math.floor((date.getTime() - now.getTime()) / ms("1h"));
-			if (hours === 1) return `${in_} an hour`;
-			return `${in_} ${hours} hours`;
+			if (hours === 1) return lower("In an hour");
+			return lower(`In ${hours} hours`);
 		}
 
-		if (until(ms("14d"))) {
+		if (until("14d")) {
 			const days = Math.floor((date.getTime() - now.getTime()) / ms("1d"));
-			if (days === 1) {
-				if (lowercase) return "tomorrow";
-				return "Tomorrow";
-			}
-			return `${in_} ${days} days`;
+			if (days === 1) return lower("Tomorrow");
+			return lower(`In ${days} days`);
 		}
 	}
 
 	// If within the last 3 months, return `{month} {day}`
 	// Else, return `{month} {day}, {year}`
+	// Compare by month instead of day.
+	// That way a year is only added if the month changes as well.
+	// Seeing `12 Jan` next to `13 Jan, 2024` is weird. Better if they both
+	// either have the year or not. `31 Jan` next to `1 Feb, 2024` is kinda normal.
 	const dateMonths = date.getFullYear() * 12 + date.getMonth();
 	const nowMonths = now.getFullYear() * 12 + now.getMonth();
 	if (Math.abs(dateMonths - nowMonths) <= 3) {
-		const dateDay = date.getDate();
-		return `${date.toLocaleString("default", { month: "short" })} ${dateDay}`;
+		// const dateDay = date.getDate();
+		return date.toLocaleString("default", {
+			month: "short",
+			day: "numeric"
+		});
+		// return `${date.toLocaleString("default", { month: "short" })} ${dateDay}`;
 	}
 
 	return date.toLocaleString("default", {
