@@ -1,7 +1,7 @@
 {
   "name": "albtc",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Little Bit Too Common - A collection of functions I use a lot.",
   "author": "kit <edoosh.yt@gmail.com>",
   "license": "MIT",
