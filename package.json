@@ -19,7 +19,7 @@
   ],
   "sideEffects": false,
   "main": "dist/index.js",
-  "module": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
@@ -27,27 +27,34 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.js"
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rollup -c",
     "test": "vitest --config ./vitest.config.ts",
     "lint": "prettier --check . && eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
     "node": "^18.0.0 || >=20.0.0"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.6",
     "@types/eslint": "8.56.0",
     "@types/node": "^18.0.0 || >=20.0.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
+    "@vitest/coverage-v8": "^1.4.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "prettier": "^3.2.5",
     "prettier-plugin-organize-imports": "^3.2.4",
+    "rollup": "^4.13.2",
+    "rollup-plugin-dts": "^6.1.0",
+    "tslib": "^2.6.2",
     "typescript": "^5.4.3",
     "vitest": "^1.4.0"
   }

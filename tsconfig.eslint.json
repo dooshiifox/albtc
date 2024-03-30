@@ -3,8 +3,11 @@
 	"include": [
 		"./node_modules/**/*.d.ts",
 		"./src/**/*.ts",
+		"./src/**/*.spec.ts",
 		"./.eslintrc.cjs",
 		"./.prettierrc.cjs",
+		"./rollup.config.mjs",
 		"./vitest.config.ts",
-	]
+	],
+	"exclude": []
 }
