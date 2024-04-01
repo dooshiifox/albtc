@@ -201,3 +201,14 @@ export function formatRelativeTime(
 		year: "numeric"
 	});
 }
+
+/** Calls `setTimeout` and returns a function that calls `clearTimeout` */
+export function createTimeout(
+	callback: () => unknown,
+	time: TimeParseable
+): () => void {
+	const timeoutId = setTimeout(callback, ms(time));
+	return () => {
+		clearTimeout(timeoutId);
+	};
+}
