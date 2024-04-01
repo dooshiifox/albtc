@@ -1,7 +1,7 @@
 {
   "name": "albtc",
   "type": "commonjs",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A Little Bit Too Common - A collection of functions I use a lot.",
   "author": "kit <edoosh.yt@gmail.com>",
   "license": "MIT",
