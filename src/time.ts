@@ -202,7 +202,7 @@ export function formatRelativeTime(
 	});
 }
 
-/** Calls `setTimeout` and returns a function that calls `clearTimeout` */
+/** Creates a timeout and returns a function that clears said timeout. */
 export function createTimeout(
 	callback: () => unknown,
 	time: TimeParseable
@@ -211,4 +211,13 @@ export function createTimeout(
 	return () => {
 		clearTimeout(timeoutId);
 	};
+}
+
+/** Creates an interval and returns a function that clears said interval. */
+export function createInterval(
+	callback: () => unknown,
+	interval: TimeParseable
+): () => void {
+	const id = setInterval(callback, ms(interval));
+	return () => clearInterval(id);
 }
