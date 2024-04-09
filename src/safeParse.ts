@@ -1,23 +1,14 @@
 /** Safely parses an integer.
  *
- *  If the input is not an integer, it returns `null`.
+ *  If the input is not a number or parseable number, it returns `null`.
  *  If the number is not safely parsed (i.e., is `NaN` or `Infinity`),
  *  it returns `null`.
  *  In the event of a decimal number, such as `1.5`, it returns `null`.
  */
 export function safeParseInt(x: unknown): number | null {
-	let number: number;
-	if (typeof x === "number") {
-		number = x;
-	} else if (typeof x === "string") {
-		number = parseFloat(x);
-	} else {
-		return null;
-	}
+	const number = safeParseFloat(x);
 
 	if (!Number.isInteger(number)) return null;
-	if (isNaN(number)) return null;
-	if (!isFinite(number)) return null;
 	return number;
 }
 
